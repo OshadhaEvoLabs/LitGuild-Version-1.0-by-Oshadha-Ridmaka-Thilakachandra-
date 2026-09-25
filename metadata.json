@@ -1,0 +1,6 @@
+{
+  "name": "LitGuide",
+  "description": "AI-powered English Literature essay and context question guide for G.C.E. O/L syllabus.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
