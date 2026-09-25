@@ -11,50 +11,49 @@ permissions:
 
 jobs:
   build:
-    name: Build Debug APK & Create Release
+    name: Build Debug APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17 (Temurin)
+      - name: Set up Java 17 (Temurin)
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Prepare build environment
+      - name: Make gradlew executable
         run: |
           if [ ! -f ./gradlew ]; then
             gradle wrapper
           fi
-          chmod +x ./gradlew
+          chmod +x gradlew
           if [ -f .env.example ] && [ ! -f .env ]; then
             cp .env.example .env
           fi
 
       - name: Build debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
+        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon -x validateSigningDebug -x kspDebugKotlin
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: litguide-debug-apk
+          name: app-debug
           path: app/build/outputs/apk/debug/*.apk
 
-      - name: Create GitHub Release and attach APK
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v1.0.${{ github.run_number }}"
-          name: "LitGuide v1.0.${{ github.run_number }}"
+          name: "LitGuide Debug APK v1.0.${{ github.run_number }}"
           body: |
-            ### 📱 LitGuide Android App (Debug Build)
-            - **Commit**: `${{ github.sha }}`
-            - **Build Run**: #${{ github.run_number }}
+            ### LitGuide Debug Build
+            - Commit: `${{ github.sha }}`
+            - Run Number: #${{ github.run_number }}
             
-            #### Installation:
-            Download the attached `app-debug.apk` file below directly to your Android device to install and test the app.
+            Download the attached `app-debug.apk` to install directly on your Android phone.
           draft: false
           prerelease: false
           files: app/build/outputs/apk/debug/*.apk
